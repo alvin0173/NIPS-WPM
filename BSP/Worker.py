@@ -44,13 +44,14 @@ class Worker(object):
 
         # Forward Propagation
         ###################################
-        inputs = inputs.view(-1, 28 * 28)
+        if self.args.model == 'LR':
+            inputs = inputs.view(-1, 28 * 28)
         ###################################
         inputs, targets = inputs.to(self.device), targets.to(self.device)
         self.optimizer.zero_grad()   
         #################################
-        outputs = self.model(inputs)[0]
-        # outputs = self.model(inputs)
+        if self.args.model == 'LR':
+            outputs = self.model(inputs)[0]
         #################################
         loss = self.criterion(outputs, targets)
         
@@ -94,12 +95,13 @@ class Worker(object):
             for batch_idx, (inputs, targets) in enumerate(self.test_loader):
                 
                 ###################################
-                inputs = inputs.view(-1, 28 * 28)
+                if self.args.model == 'LR':
+                    inputs = inputs.view(-1, 28 * 28)
                 ###################################
                 inputs, targets = inputs.to(self.device), targets.to(self.device)
                 #################################
-                outputs = self.model(inputs)[0]
-                # outputs = self.model(inputs)
+                if self.args.model == 'LR':
+                    outputs = self.model(inputs)[0]
                 #################################
                     
                 test_loss += self.criterion(outputs, targets).data.item()
@@ -132,7 +134,7 @@ class Worker(object):
     def pow_tensor(self, tensor, p):
         singp = torch.sign(tensor)
         temp = (tensor.abs()).pow(p)
-        temp.mul(singp)
+        temp.mul_(singp)
         return temp
     
     '''Power parameter, stat 1 => P, stat 0 => 1/P'''
